@@ -1,12 +1,16 @@
 name: Android Build
 
-# Builds a debug APK for the CBT Trainer app.
+# Builds a standalone RELEASE APK for the CBT Trainer app.
 #
 # The app uses native modules (WatermelonDB, expo-secure-store) so it cannot run in Expo Go.
-# CI therefore runs `expo prebuild` to generate the native Android project (Continuous Native
-# Generation — the ios/ and android/ folders are intentionally not committed), then assembles a
-# DEBUG APK. Debug is chosen deliberately: it needs no signing keystore and does not run
-# Metro/Babel (NativeWind/reanimated) at build time, keeping the native build self-contained.
+# CI runs `expo prebuild` to generate the native Android project (Continuous Native Generation —
+# the ios/ and android/ folders are intentionally not committed), then assembles a RELEASE APK.
+#
+# Release (not debug) is built so the APK is *standalone*: the JS bundle is embedded at build
+# time, so the app runs without a Metro dev server (a debug APK shows "Unable to load script"
+# when installed on its own). The React Native template signs the release build with the debug
+# keystore by default, so no signing secret is required for an internally-distributable APK.
+# (For store distribution, replace signingConfigs.release with a real keystore.)
 
 on:
   push:
@@ -48,7 +52,7 @@ jobs:
         run: npm test -- --ci
 
   android-apk:
-    name: Build Debug APK
+    name: Build Release APK
     runs-on: ubuntu-latest
     needs: verify
     steps:
@@ -76,14 +80,14 @@ jobs:
       - name: Expo prebuild (generate native android project)
         run: npx expo prebuild --platform android --no-install
 
-      - name: Gradle build (assembleDebug)
+      - name: Gradle build (assembleRelease)
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Locate APK
         id: apk
         run: |
-          APK_PATH=$(find android/app/build/outputs/apk/debug -name '*.apk' | head -n1)
+          APK_PATH=$(find android/app/build/outputs/apk/release -name '*.apk' | head -n1)
           echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
           echo "Built APK: $APK_PATH"
           ls -lh "$APK_PATH"
@@ -91,7 +95,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cbt-trainer-debug-apk
+          name: cbt-trainer-release-apk
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
           retention-days: 14
