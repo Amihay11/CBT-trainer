@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "CBT Trainer",
+    "slug": "cbt-trainer",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "cbttrainer",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "il.co.cbttrainer.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Face ID protects access to your private clinical records."
+      }
+    },
+    "android": {
+      "package": "il.co.cbttrainer.app",
+      "permissions": ["USE_BIOMETRIC", "USE_FINGERPRINT"]
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "ios": { "deploymentTarget": "15.1", "useFrameworks": "static" },
+          "android": { "minSdkVersion": 24 }
+        }
+      ]
+    ],
+    "extra": {
+      "//": "WatermelonDB + SQLCipher require a custom Dev Client build (npx expo prebuild). They do NOT run in Expo Go. See README.md > Native Modules.",
+      "syncEndpoint": "https://api.cbttrainer.example/fhir/sync"
+    }
+  }
+}
