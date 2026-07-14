@@ -7,6 +7,10 @@
     "scheme": "cbttrainer",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
+    "splash": {
+      "backgroundColor": "#0B1220",
+      "resizeMode": "contain"
+    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
